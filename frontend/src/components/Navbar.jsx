@@ -33,7 +33,7 @@ const Navbar = () => {
             </div>
           )}
 
-          <div className="flex items-center gap-6 sm:gap-8 ml-auto">
+          <div className="flex items-center gap-3 sm:gap-4 ml-auto">
             <Link to={"/"}>
               <button className="btn btn-ghost btn-circle">
                 <HomeIcon className="h-6 w-6 text-base-content opacity-70" />
