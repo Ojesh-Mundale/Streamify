@@ -82,7 +82,15 @@ const ChatPage = () => {
 
   const handleVideoCall = () => {
     if (channel) {
-      const callUrl = `${window.location.origin}/call/${channel.id}`;
+      // For production, use the deployed frontend URL
+      const isProduction = import.meta.env.PROD;
+      const baseUrl = isProduction
+        ? 'https://streamify-gktv.onrender.com'
+        : window.location.origin;
+      const callUrl = `${baseUrl}/call/${channel.id}`;
+
+      // Open the call in a new tab
+      window.open(callUrl, '_blank');
 
       channel.sendMessage({
         text: `I've started a video call. Join me here: ${callUrl}`,
