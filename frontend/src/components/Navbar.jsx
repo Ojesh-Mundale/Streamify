@@ -33,7 +33,7 @@ const Navbar = () => {
             </div>
           )}
 
-          <div className="flex items-center gap-3 sm:gap-4 ml-auto">
+          <div className="flex items-center gap-6 sm:gap-8 ml-auto">
             <Link to={"/"}>
               <button className="btn btn-ghost btn-circle">
                 <HomeIcon className="h-6 w-6 text-base-content opacity-70" />
@@ -49,21 +49,23 @@ const Navbar = () => {
                 <BellIcon className="h-6 w-6 text-base-content opacity-70" />
               </button>
             </Link>
+
+            {/* TODO */}
+            <ThemeSelector />
+
+            <Link to="/profile">
+              <div className="avatar">
+                <div className="w-9 rounded-full">
+                  <img src={authUser?.profilePic} alt="User Avatar" rel="noreferrer" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Logout button */}
+            <button className="btn btn-ghost btn-circle" onClick={logoutMutation}>
+              <LogOutIcon className="h-6 w-6 text-base-content opacity-70" />
+            </button>
           </div>
-
-          {/* TODO */}
-          <ThemeSelector />
-
-          <div className="avatar">
-            <div className="w-9 rounded-full">
-              <img src={authUser?.profilePic} alt="User Avatar" rel="noreferrer" />
-            </div>
-          </div>
-
-          {/* Logout button */}
-          <button className="btn btn-ghost btn-circle" onClick={logoutMutation}>
-            <LogOutIcon className="h-6 w-6 text-base-content opacity-70" />
-          </button>
         </div>
       </div>
     </nav>
