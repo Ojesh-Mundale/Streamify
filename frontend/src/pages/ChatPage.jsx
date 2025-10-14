@@ -82,8 +82,8 @@ const ChatPage = () => {
 
   const handleVideoCall = () => {
     if (channel) {
-      // Always use the deployed frontend URL for call links to work on mobile
-      const baseUrl = 'https://streamify-gktv.onrender.com';
+      // Use localhost for local development, deployed URL for production
+      const baseUrl = import.meta.env.DEV ? 'http://localhost:5173' : 'https://streamify-gktv.onrender.com';
       const callUrl = `${baseUrl}/call/${channel.id}`;
 
       // Open the call in a new tab
