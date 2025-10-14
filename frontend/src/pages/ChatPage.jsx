@@ -100,12 +100,12 @@ const ChatPage = () => {
   if (loading || !chatClient || !channel) return <ChatLoader />;
 
   return (
-    <div className="h-screen w-full flex flex-col">
+    <div className="h-screen w-full flex flex-col overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <div className="flex-1 w-full relative">
+          <div className="flex-1 w-full relative overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
             <CallButton handleVideoCall={handleVideoCall} />
-            <Window className="h-full">
+            <Window className="h-full overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
               <ChannelHeader />
               <MessageList />
               <MessageInput focus />

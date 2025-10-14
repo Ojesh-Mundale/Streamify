@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global mobile responsiveness */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
 .str-chat__channel {
   display: flex;
   align-items: center;
@@ -11,13 +20,42 @@
 }
 
 .str-chat__container {
-  max-width: 1200px;
-  width: 100%;
+  max-width: none !important;
+  width: 100% !important;
   height: 80% !important;
-  margin: 0 auto !important;
+  margin: 0 !important;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .str-chat__container {
+    height: 90% !important;
+    border-radius: 0;
+  }
+}
+
+/* Ensure no horizontal overflow */
+.str-chat__channel {
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.str-chat__window {
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.str-chat__message-list {
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.str-chat__message-input {
+  width: 100% !important;
+  overflow-x: hidden !important;
 }
 
 .str-chat__list {
@@ -31,4 +69,22 @@
 
 .str-chat__message-input {
   border-top: 1px solid #ddd;
+}
+
+/* Force all Stream Chat elements to fit viewport */
+.str-chat__channel,
+.str-chat__container,
+.str-chat__window,
+.str-chat__message-list,
+.str-chat__message-input,
+.str-chat__channel-header,
+.str-chat__thread,
+.str-chat__list,
+.str-chat__message,
+.str-chat__message-text,
+.str-chat__input {
+  max-width: 100vw !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
 }
