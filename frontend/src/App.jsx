@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router";
 import HomePage from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import MaintenancePage from "./pages/MaintenancePage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 import FriendsPage from "./pages/FriendsPage.jsx";
 import CallPage from "./pages/CallPage.jsx";
@@ -49,9 +50,11 @@ const App = () => {
         />
         <Route
           path="/login"
-          element={
-            !isAuthenticated ? <LoginPage /> : <Navigate to={isOnboarded ? "/" : "/onboarding"} />
-          }
+          element={<MaintenancePage />}
+        />
+        <Route
+          path="/maintenance"
+          element={<MaintenancePage />}
         />
         <Route
           path="/notifications"
