@@ -8,4 +8,14 @@ export default defineConfig({
     host: '0.0.0.0',
     historyApiFallback: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          streamChat: ['stream-chat-react'],
+          streamVideo: ['@stream-io/video-react-sdk'],
+        },
+      },
+    },
+  },
 })
