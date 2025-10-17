@@ -1,5 +1,8 @@
 import { axiosInstance } from "./axios";
 
+// lib/api.js
+const API_BASE = import.meta.env.VITE_API_URL; // points to your backend
+
 export const signup = async (signupData) => {
   const response = await axiosInstance.post("/auth/signup", signupData);
   return response.data;
@@ -59,7 +62,10 @@ export async function acceptFriendRequest(requestId) {
   return response.data;
 }
 
-export async function getStreamToken() {
-  const response = await axiosInstance.get("/chat/token");
-  return response.data;
-}
+export const getStreamToken = async () => {
+  const res = await fetch(`${API_BASE}/get-stream-token`, {
+    credentials: "include", // if backend uses cookies for auth
+  });
+  if (!res.ok) throw new Error("Failed to fetch stream token");
+  return res.json();
+};
