@@ -43,6 +43,7 @@ const ChatPage = () => {
     console.log("tokenLoading:", tokenLoading);
     console.log("tokenError:", tokenError);
     console.log("targetUserId:", targetUserId);
+    console.log("STREAM_API_KEY:", STREAM_API_KEY);
 
     const initChat = async () => {
       if (tokenLoading) {
@@ -67,6 +68,8 @@ const ChatPage = () => {
 
         const client = StreamChat.getInstance(STREAM_API_KEY);
 
+        console.log("Connecting user to chat client...");
+
         await client.connectUser(
           {
             id: authUser._id,
@@ -76,7 +79,7 @@ const ChatPage = () => {
           tokenData.token
         );
 
-        console.log("User connected to Stream");
+        console.log("User connected successfully");
 
         const channelId = [authUser._id, targetUserId].sort().join("-");
         console.log("Channel ID:", channelId);
@@ -85,13 +88,17 @@ const ChatPage = () => {
           members: [authUser._id, targetUserId],
         });
 
+        console.log("Watching channel...");
+
         await currChannel.watch();
+
         console.log("Channel watched successfully");
 
         setChatClient(client);
         setChannel(currChannel);
       } catch (error) {
         console.error("Error initializing chat:", error);
+        console.error("Error details:", error.message, error.stack);
         toast.error("Could not connect to chat. Please try again.");
       } finally {
         setLoading(false);

@@ -43,6 +43,7 @@ const CallPage = () => {
     console.log("tokenLoading:", tokenLoading);
     console.log("tokenError:", tokenError);
     console.log("callId:", callId);
+    console.log("STREAM_API_KEY:", STREAM_API_KEY);
 
     if (tokenLoading) {
       console.log("Token is still loading, cannot join call yet");
@@ -70,13 +71,19 @@ const CallPage = () => {
         image: authUser.profilePic,
       };
 
+      console.log("Creating video client with user:", user);
+
       const videoClient = new StreamVideoClient({
         apiKey: STREAM_API_KEY,
         user,
         token: tokenData.token,
       });
 
+      console.log("Video client created, creating call instance...");
+
       const callInstance = videoClient.call("default", callId);
+
+      console.log("Call instance created, attempting to join...");
 
       await callInstance.join({ create: true });
 
@@ -87,6 +94,7 @@ const CallPage = () => {
       setJoined(true);
     } catch (error) {
       console.error("Error joining call:", error);
+      console.error("Error details:", error.message, error.stack);
       toast.error("Could not join the call. Please check permissions and try again.");
     } finally {
       setJoining(false);
