@@ -30,14 +30,35 @@ const CallPage = () => {
 
   const { authUser, isLoading } = useAuthUser();
 
-  const { data: tokenData } = useQuery({
+  const { data: tokenData, isLoading: tokenLoading, error: tokenError } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
     enabled: !!authUser,
   });
 
   const handleJoinCall = async () => {
-    if (!tokenData?.token || !authUser || !callId) return;
+    console.log("CallPage handleJoinCall triggered");
+    console.log("authUser:", authUser);
+    console.log("tokenData:", tokenData);
+    console.log("tokenLoading:", tokenLoading);
+    console.log("tokenError:", tokenError);
+    console.log("callId:", callId);
+
+    if (tokenLoading) {
+      console.log("Token is still loading, cannot join call yet");
+      return;
+    }
+
+    if (tokenError) {
+      console.log("Token fetch error:", tokenError);
+      toast.error("Failed to authenticate for call. Please try again.");
+      return;
+    }
+
+    if (!tokenData?.token || !authUser || !callId) {
+      console.log("Missing required data for call:", { token: !!tokenData?.token, authUser: !!authUser, callId: !!callId });
+      return;
+    }
 
     setJoining(true);
     try {
