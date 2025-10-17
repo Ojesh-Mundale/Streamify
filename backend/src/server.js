@@ -119,7 +119,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api", chatRoutes);
 
 // Serve static files and handle SPA routing for non-API routes
 app.use(express.static(path.join(__dirname, "../frontend/dist")));

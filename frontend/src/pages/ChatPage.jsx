@@ -30,15 +30,37 @@ const ChatPage = () => {
 
   const { authUser } = useAuthUser();
 
-  const { data: tokenData } = useQuery({
+  const { data: tokenData, isLoading: tokenLoading, error: tokenError } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
     enabled: !!authUser, // this will run only when authUser is available
   });
 
   useEffect(() => {
+    console.log("ChatPage useEffect triggered");
+    console.log("authUser:", authUser);
+    console.log("tokenData:", tokenData);
+    console.log("tokenLoading:", tokenLoading);
+    console.log("tokenError:", tokenError);
+    console.log("targetUserId:", targetUserId);
+
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) return;
+      if (tokenLoading) {
+        console.log("Token is still loading, waiting...");
+        return;
+      }
+
+      if (tokenError) {
+        console.log("Token fetch error:", tokenError);
+        setLoading(false);
+        return;
+      }
+
+      if (!tokenData?.token || !authUser) {
+        console.log("Missing token or authUser, setting loading to false");
+        setLoading(false);
+        return;
+      }
 
       try {
         console.log("Initializing stream chat client...");
@@ -54,18 +76,17 @@ const ChatPage = () => {
           tokenData.token
         );
 
-        //
-        const channelId = [authUser._id, targetUserId].sort().join("-");
+        console.log("User connected to Stream");
 
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
+        const channelId = [authUser._id, targetUserId].sort().join("-");
+        console.log("Channel ID:", channelId);
 
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
         });
 
         await currChannel.watch();
+        console.log("Channel watched successfully");
 
         setChatClient(client);
         setChannel(currChannel);
@@ -78,7 +99,7 @@ const ChatPage = () => {
     };
 
     initChat();
-  }, [tokenData, authUser, targetUserId]);
+  }, [tokenData, tokenLoading, tokenError, authUser, targetUserId]);
 
   const handleVideoCall = () => {
     if (channel) {

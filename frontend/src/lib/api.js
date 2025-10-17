@@ -63,9 +63,6 @@ export async function acceptFriendRequest(requestId) {
 }
 
 export const getStreamToken = async () => {
-  const res = await fetch(`${API_BASE}/get-stream-token`, {
-    credentials: "include", // if backend uses cookies for auth
-  });
-  if (!res.ok) throw new Error("Failed to fetch stream token");
-  return res.json();
+  const response = await axiosInstance.get("/get-stream-token");
+  return response.data;
 };
