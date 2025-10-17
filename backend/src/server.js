@@ -136,7 +136,8 @@ app.get("*", (req, res) => {
 // Add _redirects handling for Render
 app.get("/_redirects", (req, res) => {
   res.type("text/plain");
-  res.send("/* /index.html 200");
+  res.send(`/* /index.html 200
+/assets/* /assets/:splat 200`);
 });
 
 // Update Stream app settings to allow localhost and deployed URLs
