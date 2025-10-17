@@ -82,12 +82,17 @@ const ChatPage = () => {
 
   const handleVideoCall = () => {
     if (channel) {
-      // Use localhost for local development, deployed URL for production
-      const baseUrl = import.meta.env.DEV ? 'http://localhost:5173' : 'https://streamify-gktv.onrender.com';
+      // Use current origin for local development (works on mobile), deployed URL for production
+      const baseUrl = import.meta.env.DEV ? window.location.origin : 'https://streamify-gktv.onrender.com';
       const callUrl = `${baseUrl}/call/${channel.id}`;
 
-      // Open the call in a new tab
-      window.open(callUrl, '_blank');
+      // Open the call in the same tab on mobile, new tab on desktop
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = callUrl;
+      } else {
+        window.open(callUrl, '_blank');
+      }
 
       channel.sendMessage({
         text: `I've started a video call. Join me here: ${callUrl}`,
