@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import { StreamChat } from "stream-chat";
 
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
@@ -132,7 +133,24 @@ app.get("*", (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// Update Stream app settings to allow localhost and deployed URLs
+const updateStreamSettings = async () => {
+  try {
+    const streamClient = StreamChat.getInstance(process.env.STREAM_API_KEY, process.env.STREAM_API_SECRET);
+    await streamClient.updateAppSettings({
+      allowed_origins: [
+        "http://localhost:5173",                   // for local testing
+        "https://streamify-gktv.onrender.com",    // deployed website
+      ],
+    });
+    console.log("✅ Stream allowed origins updated successfully");
+  } catch (error) {
+    console.error("❌ Failed to update Stream settings:", error.message);
+  }
+};
+
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  await updateStreamSettings();
   connectDB();
 });
