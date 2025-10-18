@@ -14,6 +14,17 @@ import {
   Window,
 } from "stream-chat-react";
 import { StreamChat } from "stream-chat";
+import {
+  StreamVideo,
+  StreamVideoClient,
+  StreamCall,
+  CallControls,
+  SpeakerLayout,
+  StreamTheme,
+  CallingState,
+  useCallStateHooks,
+} from "@stream-io/video-react-sdk";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 import toast from "react-hot-toast";
 
 import ChatLoader from "../components/ChatLoader";
@@ -27,6 +38,10 @@ const ChatPage = () => {
   const [chatClient, setChatClient] = useState(null);
   const [channel, setChannel] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [videoClient, setVideoClient] = useState(null);
+  const [call, setCall] = useState(null);
+  const [inCall, setInCall] = useState(false);
+  const [joiningCall, setJoiningCall] = useState(false);
 
   const { authUser } = useAuthUser();
 
@@ -108,25 +123,66 @@ const ChatPage = () => {
     initChat();
   }, [tokenData, tokenLoading, tokenError, authUser, targetUserId]);
 
-  const handleVideoCall = () => {
-    if (channel) {
-      // Use current origin for local development (works on mobile), deployed URL for production
-      const baseUrl = import.meta.env.DEV ? window.location.origin : 'https://streamify-gktv.onrender.com';
-      const callUrl = `${baseUrl}/call/${channel.id}`;
+  const handleVideoCall = async () => {
+    if (!tokenData?.token || !authUser || !channel) {
+      console.log("Missing required data for call:", { token: !!tokenData?.token, authUser: !!authUser, channel: !!channel });
+      return;
+    }
 
-      // Open the call in the same tab on mobile, new tab on desktop
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobile) {
-        window.location.href = callUrl;
-      } else {
-        window.open(callUrl, '_blank');
-      }
+    setJoiningCall(true);
+    try {
+      console.log("Initializing Stream video client...");
 
-      channel.sendMessage({
-        text: `I've started a video call. Join me here: ${callUrl}`,
+      const user = {
+        id: authUser._id,
+        name: authUser.fullName,
+        image: authUser.profilePic,
+      };
+
+      console.log("Creating video client with user:", user);
+
+      const videoClientInstance = new StreamVideoClient({
+        apiKey: STREAM_API_KEY,
+        user,
+        token: tokenData.token,
       });
 
-      toast.success("Video call link sent successfully!");
+      console.log("Video client created, creating call instance...");
+
+      const callInstance = videoClientInstance.call("default", channel.id);
+
+      console.log("Call instance created, attempting to join...");
+
+      await callInstance.join({ create: true });
+
+      console.log("Joined call successfully");
+
+      setVideoClient(videoClientInstance);
+      setCall(callInstance);
+      setInCall(true);
+
+      // Send message to other participant
+      channel.sendMessage({
+        text: `📞 Video call started!`,
+      });
+
+      toast.success("Video call started!");
+    } catch (error) {
+      console.error("Error joining call:", error);
+      console.error("Error details:", error.message, error.stack);
+      toast.error("Could not start the call. Please try again.");
+    } finally {
+      setJoiningCall(false);
+    }
+  };
+
+  const handleEndCall = () => {
+    if (call) {
+      call.leave();
+      setInCall(false);
+      setCall(null);
+      setVideoClient(null);
+      toast.success("Call ended");
     }
   };
 
@@ -134,20 +190,47 @@ const ChatPage = () => {
 
   return (
     <div className="h-screen w-full flex flex-col overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
-      <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <div className="flex-1 w-full relative overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
-            <CallButton handleVideoCall={handleVideoCall} />
-            <Window className="h-full overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
-              <ChannelHeader />
-              <MessageList />
-              <MessageInput focus />
-            </Window>
-          </div>
-          <Thread />
-        </Channel>
-      </Chat>
+      {inCall && videoClient && call ? (
+        <StreamVideo client={videoClient}>
+          <StreamCall call={call}>
+            <CallContent onEndCall={handleEndCall} />
+          </StreamCall>
+        </StreamVideo>
+      ) : (
+        <Chat client={chatClient}>
+          <Channel channel={channel}>
+            <div className="flex-1 w-full relative overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+              <CallButton handleVideoCall={handleVideoCall} joiningCall={joiningCall} />
+              <Window className="h-full overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+                <ChannelHeader />
+                <MessageList />
+                <MessageInput focus />
+              </Window>
+            </div>
+            <Thread />
+          </Channel>
+        </Chat>
+      )}
     </div>
   );
 };
+
+const CallContent = ({ onEndCall }) => {
+  const { useCallCallingState } = useCallStateHooks();
+  const callingState = useCallCallingState();
+
+  useEffect(() => {
+    if (callingState === CallingState.LEFT) {
+      onEndCall();
+    }
+  }, [callingState, onEndCall]);
+
+  return (
+    <StreamTheme>
+      <SpeakerLayout />
+      <CallControls />
+    </StreamTheme>
+  );
+};
+
 export default ChatPage;
